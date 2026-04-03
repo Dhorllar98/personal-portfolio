@@ -1,0 +1,24 @@
+# ── Frontend ──────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# ── Backend ───────────────────────────────────────────
+backend/**/bin/
+backend/**/obj/
+backend/**/*.user
+backend/Portfolio.Api/appsettings.Development.json
+backend/Portfolio.Api/appsettings.Production.json
+
+# ── OS / Editor ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.swp
+
+# ── Logs ──────────────────────────────────────────────
+*.log
+logs/
