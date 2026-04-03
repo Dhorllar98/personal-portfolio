@@ -398,3 +398,345 @@ cd ../frontend && npm install && npm run dev
 ---
 
 *Last updated: April 2, 2026 — Session ended due to power outage. Resume from EF Core migration.*
+
+---
+
+## 🔧 Post-Migration: Package Fixes & Network Troubleshooting
+
+**Date:** April 3, 2026 · **Status:** ⚠️ Migration pending — network instability
+
+### Issue 1 — EF Core Design Package Version Mismatch
+
+**Error:**
+```
+NU1202: Package Microsoft.EntityFrameworkCore.Design 10.0.5 is not 
+compatible with net9.0
+```
+
+**Root cause:** NuGet auto-grabbed the latest version (10.0.5) which requires .NET 10. Project targets .NET 9.
+
+**Fix — pinned all EF Core packages to 9.0.4:**
+```powershell
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 9.0.4
+dotnet add package Microsoft.EntityFrameworkCore.Relational --version 9.0.4
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL --version 9.0.4
+```
+✅ All packages installed and compatible
+
+**Lesson:** Always pin EF Core package versions explicitly. NuGet will grab the latest by default — which breaks cross-version compatibility.
+
+---
+
+### Issue 2 — DNS Cannot Resolve Supabase Hostname
+
+**Error:**
+```
+No such host is known.
+ping db.qwaisknldjzfjiswjgcn.supabase.co — could not find host
+```
+
+**Root cause:** ISP/router-level DNS blocking Supabase direct connection hostnames. Common in some Nigerian network environments.
+
+**Fixes attempted:**
+
+**Attempt 1 — Flush DNS cache:**
+```powershell
+ipconfig /flushdns
+```
+❌ Host still not found
+
+**Attempt 2 — Switch DNS to Google (8.8.8.8):**
+```powershell
+Set-DnsClientServerAddress -InterfaceAlias "Wi-Fi" -ServerAddresses "8.8.8.8","8.8.4.4"
+```
+❌ Direct Supabase hostname still not resolving
+
+**Attempt 3 — Switch to Supabase Connection Pooler:**
+Supabase dashboard → Connect → Transaction pooler URL:
+```
+Host=aws-1-eu-west-3.pooler.supabase.com;
+Database=postgres;
+Username=postgres.qwaisknldjzfjiswjgcn;
+Password=[REDACTED];
+Port=6543;
+SSL Mode=Require;Trust Server Certificate=true
+```
+
+Ping test on pooler host:
+```
+Pinging pool-tcp-euw31-d48127e-ab091e2c24673697.elb.eu-west-3.amazonaws.com 
+[35.181.159.10]
+Request timed out.
+```
+✅ Hostname resolved to IP — DNS now working. Timeout is expected (Supabase blocks ICMP ping).
+
+Updated `appsettings.Development.json` with pooler connection string.
+
+---
+
+### Issue 3 — Migration Timeout on CREATE TABLE
+
+**Error (consistent across two attempts):**
+```
+Failed executing DbCommand (63,554ms) [CommandTimeout='60']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory"
+System.TimeoutException: Timeout during reading attempt
+```
+
+**What's working:**
+- DNS resolves ✅
+- Connection establishes ✅
+- SELECT query executes in ~237ms ✅
+- CREATE TABLE times out at ~63 seconds ❌
+
+**Root cause:** Network instability between local machine and Supabase pooler in eu-west-3. The SELECT (read) works fine but DDL write operations drop mid-execution. Likely a latency/packet-loss issue on the current network.
+
+**Current state:**
+- Migration file `InitialCreate` created successfully on disk ✅
+- Database update command connects but fails on table creation ⏳
+- `appsettings.Development.json` updated with pooler URL + timeout params ✅
+- `ContactSubmissions` table not yet created in Supabase ⏳
+
+**Workaround options for next session:**
+1. Try on a different/more stable network (hotspot, different ISP)
+2. Create the table manually in Supabase SQL Editor using the migration SQL
+3. Try running the migration multiple times — EF Core is idempotent and will resume
+
+**Manual SQL fallback** (run in Supabase SQL Editor if migration keeps failing):
+```sql
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+
+CREATE TABLE IF NOT EXISTS "ContactSubmissions" (
+    "Id" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "FullName" character varying(100) NOT NULL,
+    "Email" character varying(255) NOT NULL,
+    "Subject" character varying(200) NOT NULL,
+    "Message" text NOT NULL,
+    "SubmittedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "IpAddress" character varying(45),
+    "IsRead" boolean NOT NULL DEFAULT false,
+    CONSTRAINT "PK_ContactSubmissions" PRIMARY KEY ("Id")
+);
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20260402000000_InitialCreate', '9.0.4');
+```
+
+---
+
+## 📊 Build Progress (Updated)
+
+| Phase | Status |
+|---|---|
+| Brainstorming & Prompt Planning | ✅ Complete |
+| Environment Setup | ✅ Complete |
+| Stack Confirmation | ✅ Complete |
+| Database & Hosting Decisions | ✅ Complete |
+| Project Scaffold | ✅ Complete |
+| Supabase Setup | ✅ Complete |
+| appsettings.Development.json | ✅ Complete |
+| .gitignore Verified | ✅ Complete |
+| EF Core Packages Aligned (9.0.4) | ✅ Complete |
+| DNS Fixed (Google DNS + Pooler URL) | ✅ Complete |
+| EF Core Migration File Created | ✅ Complete |
+| Database Update (table creation) | ⚠️ Failing — network timeout |
+| Frontend Running Locally | ⏳ Pending |
+| Design System | ⏳ Pending |
+| Five Sections Built | ⏳ Pending |
+| Database Integration Verified | ⏳ Pending |
+| Blog Article Published | ⏳ Pending |
+| Deployment (Vercel + Render) | ⏳ Pending |
+| /docs Folder Complete | ⏳ Pending |
+| LinkedIn Post Drafted | ⏳ Pending |
+| 3-Slide Presentation | ⏳ Pending |
+
+*Last updated: April 3, 2026*
+
+---
+
+## 🔧 Session 3 — Database Fix, Frontend Launch & Content Personalisation
+
+**Date:** April 3, 2026
+
+---
+
+### Issue 4 — Database Tables Created via SQL Editor (Migration Workaround)
+
+**Problem:** EF Core `database update` command kept timing out at the `CREATE TABLE` step due to network instability between the local machine and the Supabase eu-west-3 pooler. The connection established and SELECT queries ran fine (~237ms) but DDL write operations dropped after ~63 seconds consistently across multiple attempts.
+
+**Root cause confirmed:** Not a code issue. Network packet loss on write operations to Supabase from the current Nigerian ISP connection.
+
+**Fix — Manual SQL execution in Supabase SQL Editor:**
+Bypassed EF Core entirely. Navigated to Supabase dashboard → SQL Editor and ran the migration SQL manually:
+
+```sql
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+
+CREATE TABLE IF NOT EXISTS "ContactSubmissions" (
+    "Id" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "FullName" character varying(100) NOT NULL,
+    "Email" character varying(255) NOT NULL,
+    "Subject" character varying(200) NOT NULL,
+    "Message" text NOT NULL,
+    "SubmittedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "IpAddress" character varying(45),
+    "IsRead" boolean NOT NULL DEFAULT false,
+    CONSTRAINT "PK_ContactSubmissions" PRIMARY KEY ("Id")
+);
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20260403070312_InitialCreate', '9.0.4');
+```
+
+**Result:** Both tables appeared in Supabase → Database → Tables immediately. ✅
+
+**Lesson:** When infrastructure tooling (EF Core migrations) fails due to network conditions, the underlying SQL is always available as a fallback. Understanding what the tool does under the hood is what makes the workaround possible.
+
+---
+
+### Issue 5 — Node.js v24 / esbuild Binary Incompatibility
+
+**Error:**
+```
+spawnSync esbuild.exe EFTYPE
+Error: spawnSync C:\...\@esbuild\win32-x64\esbuild.exe
+npm error code 1
+```
+
+**Root cause:** The esbuild binary bundled in Claude's scaffolded `package.json` was built for an older Node.js version and could not execute on Node v24.14.1 (current LTS as of March 2026). The `EFTYPE` error indicates a binary format mismatch.
+
+**Initial misdiagnosis:** Assumed Node v24 was too new and recommended downgrading to v20. This was incorrect — Node v24.14.1 is the current recommended LTS. The real issue was an outdated esbuild version in the scaffold.
+
+**Fix:**
+```powershell
+# Step 1 — Delete broken partial install
+cd frontend
+Remove-Item -Recurse -Force node_modules
+Remove-Item package-lock.json
+
+# Step 2 — Update esbuild to Node 24-compatible version
+npm install esbuild@latest --save-dev
+
+# Step 3 — Complete the install
+npm install
+```
+✅ 368 packages installed cleanly
+
+**Lesson:** When a binary compatibility error occurs, update the package first before considering runtime downgrades. Node v24 is current LTS — don't downgrade to work around an outdated dependency.
+
+---
+
+### Issue 6 — Visual Studio Build Tools Required for Node Native Modules
+
+**What happened:** The Node.js installer's "Additional Tools" option was triggered, which launched a Chocolatey-based installation of Python and Visual Studio 2026 Build Tools (C++ workload). This is required for Node to compile native modules on Windows.
+
+**Packages installed via Chocolatey:**
+- Python 3.14.3
+- Visual Studio 2026 Build Tools
+- visualstudio2026-workload-vctools (C++ compiler)
+- vcredist140, vcredist2015 (Visual C++ redistributables)
+
+**Duration:** ~15 minutes
+
+**Result:** ✅ All 19 packages upgraded successfully. Reboot required and completed.
+
+**Lesson:** On a fresh Windows machine, Node native module compilation requires Visual Studio Build Tools. This is a one-time setup cost that doesn't need repeating.
+
+---
+
+### ✅ Frontend Running Locally — All 5 Sections Confirmed
+
+**Date:** April 3, 2026
+**URL:** http://localhost:5173
+
+After `npm run dev` completed successfully, the portfolio loaded at localhost:5173 with all five sections rendering correctly:
+
+| Section | Status | Notes |
+|---|---|---|
+| Hero | ✅ | Name, tagline, two CTAs rendering |
+| About | ✅ | Bio and skills grid present |
+| Projects | ✅ | Placeholder cards visible |
+| Blog | ✅ | Placeholder article showing |
+| Contact | ✅ | Form with Name, Email, Message, Send button |
+
+Backend started separately on `https://localhost:7000` via `dotnet run`.
+
+---
+
+### 🎨 Content Personalisation — Projects Section
+
+**File edited:** `frontend/src/data/projects.ts`
+
+**What changed:** Replaced all placeholder project cards with real repository data. Four projects added:
+
+1. **Personal Portfolio** — this project, with AI-assisted development angle
+2. **Clinical Task Management API** — pure C# backend, clean architecture
+3. **Fashion & Lifestyle v1** — full-stack, live on Vercel + Render
+4. **QR Attendance API** — team contribution via pull request
+
+**Key decision:** Clinical Task Management API was correctly represented as a backend-only project (C#, ASP.NET Core, EF Core, JWT) with no React/TypeScript tags — accurately reflecting what the repo contains. Backend-only projects are valid portfolio items.
+
+**Portfolio project description approach:** Mixed Option B (personal/authentic tone) with Option C (engineering credentials + AI-assisted development angle) for the portfolio's own card.
+
+---
+
+## 📊 Build Progress (Updated — April 3)
+
+| Phase | Status |
+|---|---|
+| Brainstorming & Prompt Planning | ✅ Complete |
+| Environment Setup | ✅ Complete |
+| Stack Confirmation | ✅ Complete |
+| Database & Hosting Decisions | ✅ Complete |
+| Project Scaffold | ✅ Complete |
+| Supabase Setup | ✅ Complete |
+| appsettings.Development.json | ✅ Complete |
+| .gitignore Verified | ✅ Complete |
+| EF Core Packages Aligned (9.0.4) | ✅ Complete |
+| DNS Fixed (Google DNS + Pooler URL) | ✅ Complete |
+| EF Core Migration File Created | ✅ Complete |
+| Database Tables Created (SQL Editor) | ✅ Complete |
+| Node/esbuild Compatibility Fixed | ✅ Complete |
+| Frontend Running Locally | ✅ Complete |
+| Backend Running Locally | ✅ Complete |
+| All 5 Sections Rendering | ✅ Complete |
+| Projects Data Personalised | ✅ Complete |
+| About Bio | 🔄 In Progress |
+| Blog Article Written | ⏳ Pending |
+| Blog Post Published on Site | ⏳ Pending |
+| Contact Form End-to-End Tested | ⏳ Pending |
+| Deployment (Vercel + Render) | ⏳ Pending |
+| /docs Folder Complete | ⏳ Pending |
+| LinkedIn Post Drafted | ⏳ Pending |
+| 3-Slide Presentation | ⏳ Pending |
+
+---
+
+## 🧠 Key Lessons (Updated)
+
+1. A day of planning is not a day lost — it made the build day focused and deliberate.
+2. Prompt engineering is a skill, not a shortcut — every prompt was drafted, challenged, and refined.
+3. Knowing when to skip a prompt is judgment, not laziness — Prompts 2 and 3 were deliberately skipped.
+4. Claude runs ahead if you don't constrain it — Prompt 4 proved this.
+5. Knowing when to accept overreach is a skill — evaluate against your standards before rolling back.
+6. BIOS is the ground floor — Hyper-V and VTx are two separate things.
+7. Project ID ≠ Project name in Supabase connection strings.
+8. Protect credentials before the first commit — .gitignore first, always.
+9. Interruptions don't erase progress — document the state and resume cleanly.
+10. Cross-check Claude's output against ALL your existing repos — not just the most recent one.
+11. When infrastructure tooling fails due to network conditions, understand the underlying SQL — the workaround is always there.
+12. When a binary error occurs, update the package first before downgrading the runtime.
+13. Backend-only projects are valid portfolio items — don't misrepresent a C# API as a full-stack project just to make it look more impressive.
+14. Always push questions back at Claude's recommendations — Node v24 correction proved that Claude's initial advice can be wrong.
+
+---
+
+*Last updated: April 3, 2026 — Frontend and backend running locally. All 5 sections live. Projects personalised. Next: blog article, about bio, contact form test, deployment.*
