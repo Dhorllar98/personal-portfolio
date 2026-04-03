@@ -1,3 +1,5 @@
+import { useScrollReveal } from '../../hooks/useScrollReveal'
+
 const skills = [
   'TypeScript', 'React', 'ASP.NET Core', 'C#',
   'EF Core', 'PostgreSQL', 'Tailwind CSS', 'Docker',
@@ -5,15 +7,19 @@ const skills = [
 ]
 
 export default function About() {
+  const headingRef = useScrollReveal()
+  const contentRef = useScrollReveal<HTMLDivElement>()
+
   return (
-    <section id="about" className="section-padding bg-gray-50 dark:bg-gray-900">
+    <section id="about" className="section-padding" style={{ background: 'var(--bg-secondary)' }}>
       <div className="container-max">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          <span className="font-mono text-brand-600 dark:text-brand-400 text-lg mr-2">01.</span>
+        <h2 ref={headingRef} className="reveal font-display text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+          <span className="font-mono text-base mr-2" style={{ color: 'var(--accent-cyan)' }}>01.</span>
           About Me
         </h2>
-        <div className="mt-8 grid md:grid-cols-5 gap-12">
-          <div className="md:col-span-3 space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed">
+
+        <div ref={contentRef} className="reveal mt-8 grid md:grid-cols-5 gap-12">
+          <div className="md:col-span-3 space-y-4 leading-relaxed text-base" style={{ color: 'var(--text-secondary)' }}>
             <p>
               I&apos;m a full-stack developer who enjoys building well-structured, maintainable software.
               My main tools are React + TypeScript on the frontend and ASP.NET Core + C# on the backend,
@@ -28,15 +34,15 @@ export default function About() {
               to open source, or writing about things I&apos;ve learned.
             </p>
           </div>
+
           <div className="md:col-span-2">
-            <p className="text-sm font-medium text-gray-900 dark:text-white mb-3">Technologies I work with:</p>
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
+            <p className="text-sm font-medium mb-4" style={{ color: 'var(--text-primary)' }}>
+              Technologies I work with:
+            </p>
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
               {skills.map((skill) => (
-                <li
-                  key={skill}
-                  className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-                >
-                  <span className="text-brand-500 select-none" aria-hidden>▹</span>
+                <li key={skill} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  <span className="text-xs select-none" style={{ color: 'var(--accent-cyan)' }} aria-hidden>▹</span>
                   {skill}
                 </li>
               ))}

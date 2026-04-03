@@ -1,21 +1,25 @@
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { projects } from '../../data/projects'
 import ProjectCard from './ProjectCard'
 
 export default function Projects() {
+  const headingRef = useScrollReveal()
+  const gridRef    = useScrollReveal<HTMLDivElement>()
+
   return (
-    <section id="projects" className="section-padding">
+    <section id="projects" className="section-padding" style={{ background: 'var(--bg-primary)' }}>
       <div className="container-max">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          <span className="font-mono text-brand-600 dark:text-brand-400 text-lg mr-2">02.</span>
+        <h2 ref={headingRef} className="reveal font-display text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+          <span className="font-mono text-base mr-2" style={{ color: 'var(--accent-cyan)' }}>02.</span>
           Projects
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-10">
+        <p className="mb-10 text-sm" style={{ color: 'var(--text-secondary)' }}>
           A selection of things I&apos;ve built.
         </p>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div ref={gridRef} className="reveal-children grid sm:grid-cols-2 lg:grid-cols-2 gap-5">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.title} project={project} />
           ))}
         </div>
 
@@ -24,7 +28,8 @@ export default function Projects() {
             href="https://github.com/Dhorllar98"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-brand-600 dark:text-brand-400 hover:underline font-medium"
+            className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
+            style={{ color: 'var(--accent-cyan)' }}
           >
             See more on GitHub
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

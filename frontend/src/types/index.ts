@@ -1,11 +1,9 @@
 export interface Project {
-  id: string
   title: string
   description: string
   tags: string[]
-  repoUrl?: string
-  liveUrl?: string
-  featured: boolean
+  github?: string
+  demo?: string
 }
 
 export interface BlogPost {

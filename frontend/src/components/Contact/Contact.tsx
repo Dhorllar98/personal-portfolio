@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import type { ContactFormData, ApiError } from '../../types'
 import { contactApi } from '../../lib/api'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 
 type Status = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function Contact() {
-  const [form, setForm] = useState<ContactFormData>({ name: '', email: '', message: '' })
+  const [form, setForm]     = useState<ContactFormData>({ name: '', email: '', message: '' })
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const ref = useScrollReveal<HTMLFormElement>()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,92 +23,82 @@ export default function Contact() {
       setStatus('success')
       setForm({ name: '', email: '', message: '' })
     } catch (err) {
-      const apiErr = err as ApiError
-      setErrorMsg(apiErr.message)
+      setErrorMsg((err as ApiError).message)
       setStatus('error')
     }
   }
 
   return (
-    <section id="contact" className="section-padding">
+    <section id="contact" className="section-padding" style={{ background: 'var(--bg-primary)' }}>
       <div className="container-max max-w-2xl">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          <span className="font-mono text-brand-600 dark:text-brand-400 text-lg mr-2">04.</span>
+        <h2 className="font-display text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+          <span className="font-mono text-base mr-2" style={{ color: 'var(--accent-cyan)' }}>04.</span>
           Get In Touch
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-10">
+        <p className="mb-10 text-sm" style={{ color: 'var(--text-secondary)' }}>
           Have a project in mind or just want to say hello? Send me a message and I&apos;ll get back to you.
         </p>
 
         {status === 'success' ? (
-          <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 p-6 text-green-800 dark:text-green-200">
-            <p className="font-medium">Message sent!</p>
-            <p className="text-sm mt-1">Thanks for reaching out — I&apos;ll be in touch soon.</p>
+          <div className="card-glow p-6" style={{ borderColor: 'rgba(0,212,255,0.3)' }}>
+            <p className="font-semibold" style={{ color: 'var(--accent-cyan)' }}>Message sent!</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+              Thanks for reaching out — I&apos;ll be in touch soon.
+            </p>
             <button
               onClick={() => setStatus('idle')}
-              className="mt-4 text-sm text-green-700 dark:text-green-300 hover:underline"
+              className="mt-4 text-sm transition-colors"
+              style={{ color: 'var(--accent-cyan)' }}
             >
               Send another
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <form ref={ref} onSubmit={handleSubmit} noValidate className="reveal space-y-5">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="name" className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Name
               </label>
               <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={form.name}
-                onChange={handleChange}
+                id="name" name="name" type="text" required
+                value={form.name} onChange={handleChange}
                 placeholder="Jane Doe"
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="input-field"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="email" className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Email
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={form.email}
-                onChange={handleChange}
+                id="email" name="email" type="email" required
+                value={form.email} onChange={handleChange}
                 placeholder="jane@example.com"
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="input-field"
               />
             </div>
 
             <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="message" className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Message
               </label>
               <textarea
-                id="message"
-                name="message"
-                required
-                rows={5}
-                value={form.message}
-                onChange={handleChange}
+                id="message" name="message" required rows={5}
+                value={form.message} onChange={handleChange}
                 placeholder="Your message..."
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+                className="input-field resize-none"
               />
             </div>
 
             {status === 'error' && (
-              <p className="text-sm text-red-600 dark:text-red-400">{errorMsg}</p>
+              <p className="text-sm" style={{ color: '#f87171' }}>{errorMsg}</p>
             )}
 
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
               {status === 'submitting' ? (
                 <>
@@ -117,9 +108,7 @@ export default function Contact() {
                   </svg>
                   Sending…
                 </>
-              ) : (
-                'Send Message'
-              )}
+              ) : 'Send Message'}
             </button>
           </form>
         )}
