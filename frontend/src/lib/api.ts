@@ -18,9 +18,17 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (error) => {
+    const data = error.response?.data
+    const status = error.response?.status
+
+    // ASP.NET Core ValidationProblemDetails returns errors as { errors: { Field: ["msg"] } }
+    // ProblemDetails returns { title, detail }
     const apiError: ApiError = {
-      message: error.response?.data?.message ?? 'An unexpected error occurred.',
-      errors: error.response?.data?.errors,
+      message:
+        status === 429
+          ? 'Too many requests. Please wait a moment before trying again.'
+          : data?.detail ?? data?.title ?? data?.message ?? 'An unexpected error occurred.',
+      errors: data?.errors,
     }
     return Promise.reject(apiError)
   },

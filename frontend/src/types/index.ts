@@ -18,11 +18,16 @@ export interface BlogPost {
 export interface ContactFormData {
   name: string
   email: string
+  subject: string
   message: string
 }
 
-export interface ContactSubmission extends ContactFormData {
+export interface ContactSubmission {
   id: string
+  name: string
+  email: string
+  subject: string
+  message: string
   submittedAt: string
   isRead: boolean
 }

@@ -18,7 +18,8 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Email).HasMaxLength(254).IsRequired();
-            entity.Property(e => e.Message).HasMaxLength(2000).IsRequired();
+            entity.Property(e => e.Subject).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Message).HasMaxLength(1000).IsRequired();
             entity.Property(e => e.SubmittedAt).IsRequired();
             entity.Property(e => e.IsRead).HasDefaultValue(false);
         });

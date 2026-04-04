@@ -1,5 +1,6 @@
 using System.Text;
 using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -95,6 +96,28 @@ builder.Services.AddInMemoryRateLimiting();
 // ── Pipeline ─────────────────────────────────────────────────────────────────
 
 var app = builder.Build();
+
+// Global exception handler — always returns structured ProblemDetails, never raw exceptions
+app.UseExceptionHandler(errApp => errApp.Run(async ctx =>
+{
+    ctx.Response.ContentType = "application/problem+json";
+    ctx.Response.StatusCode  = StatusCodes.Status500InternalServerError;
+
+    var feature = ctx.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+    var logger  = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
+
+    if (feature?.Error is not null)
+        logger.LogError(feature.Error, "Unhandled exception on {Method} {Path}", ctx.Request.Method, ctx.Request.Path);
+
+    var problem = new ProblemDetails
+    {
+        Title  = "An unexpected error occurred.",
+        Status = StatusCodes.Status500InternalServerError,
+        Detail = app.Environment.IsDevelopment() ? feature?.Error?.Message : null,
+    };
+
+    await ctx.Response.WriteAsJsonAsync(problem);
+}));
 
 if (app.Environment.IsDevelopment())
 {

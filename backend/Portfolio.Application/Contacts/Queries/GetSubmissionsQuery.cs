@@ -8,6 +8,7 @@ public record SubmissionDto(
     Guid Id,
     string Name,
     string Email,
+    string Subject,
     string Message,
     DateTime SubmittedAt,
     bool IsRead);
@@ -26,7 +27,7 @@ public class GetSubmissionsHandler
         var submissions = await _repository.GetAllAsync(ct);
         var dtos = submissions
             .OrderByDescending(s => s.SubmittedAt)
-            .Select(s => new SubmissionDto(s.Id, s.Name, s.Email, s.Message, s.SubmittedAt, s.IsRead))
+            .Select(s => new SubmissionDto(s.Id, s.Name, s.Email, s.Subject, s.Message, s.SubmittedAt, s.IsRead))
             .ToList();
 
         return Result<IReadOnlyList<SubmissionDto>>.Success(dtos);

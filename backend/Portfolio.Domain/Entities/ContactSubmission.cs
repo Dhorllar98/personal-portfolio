@@ -5,16 +5,18 @@ public class ContactSubmission
     public Guid Id { get; private set; }
     public string Name { get; private set; } = default!;
     public string Email { get; private set; } = default!;
+    public string Subject { get; private set; } = default!;
     public string Message { get; private set; } = default!;
     public DateTime SubmittedAt { get; private set; }
     public bool IsRead { get; private set; }
 
     private ContactSubmission() { }
 
-    public static ContactSubmission Create(string name, string email, string message)
+    public static ContactSubmission Create(string name, string email, string subject, string message)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
+        ArgumentException.ThrowIfNullOrWhiteSpace(subject);
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
 
         return new ContactSubmission
@@ -22,6 +24,7 @@ public class ContactSubmission
             Id = Guid.NewGuid(),
             Name = name.Trim(),
             Email = email.Trim().ToLowerInvariant(),
+            Subject = subject.Trim(),
             Message = message.Trim(),
             SubmittedAt = DateTime.UtcNow,
             IsRead = false,
