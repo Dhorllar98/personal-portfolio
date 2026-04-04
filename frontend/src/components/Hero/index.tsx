@@ -31,9 +31,6 @@ export default function Hero() {
     return () => clearTimeout(startTimer)
   }, [])
 
-  // Delays in ms — sequential after typing finishes (~1.6s total)
-  const afterType = START_DELAY + NAME.length * TYPE_MS
-
   return (
     <>
       <Helmet>
