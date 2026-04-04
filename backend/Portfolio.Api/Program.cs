@@ -126,11 +126,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseIpRateLimiting();
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction()) app.UseHttpsRedirection();
 app.UseCors("PortfolioPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Render health check — must respond 200 before traffic is routed to the service
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
+   .ExcludeFromDescription();
 
 // Run EF migrations on startup (idempotent — safe for Render deploy)
 using (var scope = app.Services.CreateScope())

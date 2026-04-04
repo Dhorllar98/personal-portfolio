@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import type { ContactFormData, ApiError } from '../../types'
 import { contactApi } from '../../lib/api'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
@@ -311,7 +311,7 @@ export default function Contact() {
             style={{ borderTop: '1px solid var(--border)' }}
           >
             <a
-              href="mailto:your-email@example.com"
+              href="mailto:Dhorllar98@gmail.com"
               className="flex items-center gap-3 p-4 card-glow group"
               aria-label="Send me an email"
             >
@@ -328,13 +328,13 @@ export default function Contact() {
               <div>
                 <p className="font-mono text-xs mb-0.5" style={{ color: 'var(--text-secondary)' }}>Email</p>
                 <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                  your-email@example.com
+                  dhorllar98@gmail.com
                 </p>
               </div>
             </a>
 
             <a
-              href="https://linkedin.com/in/your-profile"
+              href="https://linkedin.com/in/Dhorllar98"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-4 card-glow group"
@@ -352,7 +352,7 @@ export default function Contact() {
               <div>
                 <p className="font-mono text-xs mb-0.5" style={{ color: 'var(--text-secondary)' }}>LinkedIn</p>
                 <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                  your-profile
+                  https://linkedin.com/in/Dhorllar98
                 </p>
               </div>
             </a>
