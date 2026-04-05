@@ -139,16 +139,26 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
 // Run EF migrations on startup (idempotent — safe for Render deploy)
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     try
     {
-        await db.Database.MigrateAsync();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var connString = builder.Configuration.GetConnectionString("DefaultConnection");
+        
+        if (string.IsNullOrEmpty(connString))
+        {
+            logger.LogWarning("Connection string 'DefaultConnection' is missing. Skipping migrations.");
+        }
+        else
+        {
+            await db.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully.");
+        }
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Database migration failed. Check your connection string.");
-        if (!app.Environment.IsDevelopment()) throw;
+        logger.LogError(ex, "Database migration failed. Your app will still start, but check your DB connection.");
+        // The 'throw' is removed so the app doesn't crash (Status 139) if the DB is slow to respond
     }
 }
 
