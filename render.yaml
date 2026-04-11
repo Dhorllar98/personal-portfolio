@@ -2,21 +2,55 @@ services:
   - type: web
     name: portfolio-api
     runtime: docker
-    rootDir: backend
     dockerfilePath: backend/Dockerfile
+    dockerContext: backend
     plan: starter
     region: oregon
     branch: main
     autoDeploy: true
     healthCheckPath: /health
     envVars:
+      # ── Runtime environment ────────────────────────────────────────────────
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: ASPNETCORE_URLS
         value: http://+:10000
-      - key: SUPABASE_CONNECTION_STRING
-        sync: false
-      - key: JWT_SECRET_KEY
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
+
+      # ── Database (Supabase) ────────────────────────────────────────────────
+      # .NET reads this as ConnectionStrings:DefaultConnection via the __ separator convention
+      - key: ConnectionStrings__DefaultConnection
+        sync: false   # Set this secret in Render dashboard → Environment
+
+      # ── JWT ───────────────────────────────────────────────────────────────
+      # Use a strong random secret (min 32 chars). Generate one with:
+      #   openssl rand -base64 48
+      - key: Jwt__Key
+        sync: false   # Set this secret in Render dashboard → Environment
+      - key: Jwt__Issuer
+        value: portfolio-api
+      - key: Jwt__Audience
+        value: portfolio-client
+      - key: Jwt__ExpiryMinutes
+        value: "60"
+
+      # ── Admin ─────────────────────────────────────────────────────────────
+      - key: Admin__Password
+        sync: false   # Set this secret in Render dashboard → Environment
+
+      # ── CORS ──────────────────────────────────────────────────────────────
+      # The __N suffix maps to AllowedOrigins[N] in .NET configuration arrays.
+      # Override these in the Render dashboard if you want to remove old origins.
+      - key: Cors__AllowedOrigins__0
+        value: https://www.dhorllar98.com
+      - key: Cors__AllowedOrigins__1
+        value: https://dhorllar98.com
+      - key: Cors__AllowedOrigins__2
+        value: https://dhorllar98.vercel.app   # keep during transition; remove after go-live
+
+      # ── GitHub (blog sync) ────────────────────────────────────────────────
+      - key: GitHub__Token
+        sync: false   # Personal Access Token (read:contents scope is sufficient)
+      - key: GitHub__Username
+        sync: false   # e.g. Dhorllar98
+      - key: GitHub__Repository
+        sync: false   # e.g. my-blog-content
