@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.Application.Contacts.Commands;
 
 namespace Portfolio.Api.Controllers;
 
+/// <summary>Public endpoint for the "Get In Touch" contact form.</summary>
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]   // No authentication required — this is a public form
 public class ContactController : ControllerBase
 {
     private readonly SubmitContactHandler _handler;
@@ -15,6 +18,7 @@ public class ContactController : ControllerBase
     }
 
     /// <summary>Submit a contact form message.</summary>
+    /// <remarks>Rate-limited to 5 requests per minute per IP.</remarks>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]

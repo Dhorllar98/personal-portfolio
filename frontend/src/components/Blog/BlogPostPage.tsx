@@ -1,24 +1,77 @@
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Helmet } from 'react-helmet-async'
-import { blogPosts } from './posts'
+import type { BlogPostDetail } from '../../types'
+import api from '../../lib/api'
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
-  const post = blogPosts.find((p) => p.slug === slug)
 
-  if (!post) {
+  const [post,    setPost]    = useState<BlogPostDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    if (!slug) return
+    let cancelled = false
+
+    api.get<BlogPostDetail>(`/api/blog/${slug}`)
+      .then(res => {
+        if (!cancelled) {
+          setPost(res.data)
+          setLoading(false)
+        }
+      })
+      .catch((err: { message?: string }) => {
+        if (!cancelled) {
+          setNotFound(true)
+          setLoading(false)
+        }
+      })
+
+    return () => { cancelled = true }
+  }, [slug])
+
+  // ── Loading ─────────────────────────────────────────────────────────────────
+  if (loading) {
     return (
       <main className="section-padding pt-32 container-max">
-        <p className="text-gray-500">Post not found.</p>
-        <Link to="/" className="mt-4 inline-block text-brand-600 dark:text-brand-400 hover:underline">
-          ← Back home
+        <div className="animate-pulse space-y-4 max-w-2xl">
+          <div className="h-3 w-20 rounded" style={{ background: 'var(--bg-secondary)' }} />
+          <div className="h-8 w-3/4 rounded" style={{ background: 'var(--bg-secondary)' }} />
+          <div className="h-3 w-full rounded" style={{ background: 'var(--bg-secondary)' }} />
+          <div className="h-3 w-5/6 rounded" style={{ background: 'var(--bg-secondary)' }} />
+        </div>
+      </main>
+    )
+  }
+
+  // ── Not found ────────────────────────────────────────────────────────────────
+  if (notFound || !post) {
+    return (
+      <main className="section-padding pt-32 container-max">
+        <Helmet>
+          <title>Post Not Found — Dhorllar Portfolio</title>
+        </Helmet>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+          That post doesn&apos;t exist or may have moved.
+        </p>
+        <Link
+          to="/#blog"
+          className="mt-4 inline-block font-mono text-sm hover:underline"
+          style={{ color: 'var(--accent-cyan)' }}
+        >
+          ← Back to blog
         </Link>
       </main>
     )
   }
 
+  const isDraft = post.status === 'draft'
+
+  // ── Post ─────────────────────────────────────────────────────────────────────
   return (
     <>
       <Helmet>
@@ -27,24 +80,77 @@ export default function BlogPostPage() {
       </Helmet>
 
       <main className="section-padding pt-32 container-max">
-        <Link to="/#blog" className="font-mono text-sm text-brand-600 dark:text-brand-400 hover:underline">
+        <Link
+          to="/#blog"
+          className="font-mono text-sm hover:underline"
+          style={{ color: 'var(--accent-cyan)' }}
+        >
           ← Back to blog
         </Link>
 
-        <article className="mt-8 prose prose-gray dark:prose-invert max-w-none">
-          <header className="not-prose mb-8">
-            <time className="font-mono text-xs text-gray-400">{post.date}</time>
-            <h1 className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{post.title}</h1>
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {post.tags.map((t) => (
-                <li key={t} className="font-mono text-xs text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950 px-2 py-0.5 rounded">
-                  {t}
-                </li>
-              ))}
-            </ul>
+        <article className="mt-8 max-w-3xl">
+          <header className="mb-10">
+            <div className="flex items-center gap-3 mb-3">
+              <time className="font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
+                {post.datePublished}
+              </time>
+              {isDraft && (
+                <span
+                  className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest"
+                  style={{
+                    background: 'rgba(121,40,202,0.15)',
+                    color: 'var(--accent-violet)',
+                    border: '1px solid var(--accent-violet)',
+                  }}
+                >
+                  Draft
+                </span>
+              )}
+            </div>
+
+            <h1
+              className="font-display text-3xl font-bold leading-tight mb-4"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {post.title}
+            </h1>
+
+            {post.tags.length > 0 && (
+              <ul className="flex flex-wrap gap-2">
+                {post.tags.map(t => (
+                  <li key={t} className="tag">{t}</li>
+                ))}
+              </ul>
+            )}
           </header>
 
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+          {/* Markdown body */}
+          <div
+            className="prose prose-sm max-w-none
+              prose-headings:font-display prose-headings:font-bold
+              prose-code:font-mono prose-code:text-xs
+              prose-a:underline
+              dark:prose-invert"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {post.content}
+            </ReactMarkdown>
+          </div>
+
+          {/* Footer */}
+          <footer className="mt-16 pt-6 flex items-center justify-between border-t" style={{ borderColor: 'var(--border-color, rgba(255,255,255,0.08))' }}>
+            <Link
+              to="/#blog"
+              className="font-mono text-sm hover:underline"
+              style={{ color: 'var(--accent-cyan)' }}
+            >
+              ← Back to blog
+            </Link>
+            <span className="font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
+              Last synced: {new Date(post.lastSyncedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
+          </footer>
         </article>
       </main>
     </>

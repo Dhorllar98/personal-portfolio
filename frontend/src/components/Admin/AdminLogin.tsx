@@ -5,8 +5,8 @@ import type { ApiError } from '../../types'
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [error,    setError]    = useState('')
+  const [loading,  setLoading]  = useState(false)
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,32 +26,81 @@ export default function AdminLogin() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
+    <main
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ background: 'var(--bg-primary)' }}
+    >
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">Admin</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-          </div>
-          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700 disabled:opacity-60 transition-colors"
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <span
+            className="font-mono text-xs tracking-widest uppercase mb-3 block"
+            style={{ color: 'var(--accent-cyan)' }}
           >
-            {loading ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
+            Admin
+          </span>
+          <h1
+            className="font-display text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Sign in
+          </h1>
+        </div>
+
+        {/* Card */}
+        <div
+          className="rounded-2xl p-8"
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+          }}
+        >
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-xs font-medium mb-1.5"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field"
+                placeholder="Enter admin password"
+              />
+            </div>
+
+            {error && (
+              <p className="text-xs" style={{ color: '#f87171' }} role="alert">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              style={loading ? { transform: 'none', boxShadow: 'none' } : {}}
+            >
+              {loading ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  Signing in…
+                </>
+              ) : 'Sign in'}
+            </button>
+          </form>
+        </div>
+
       </div>
     </main>
   )
