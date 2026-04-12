@@ -58,12 +58,20 @@ namespace Portfolio.Infrastructure.Migrations
                     b.Property<DateOnly>("DatePublished")
                         .HasColumnType("date");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("published");
+
                     b.Property<DateTime>("LastSyncedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Slug").IsUnique();
+
+                    b.HasIndex("Status");
 
                     b.ToTable("BlogPosts");
                 });
