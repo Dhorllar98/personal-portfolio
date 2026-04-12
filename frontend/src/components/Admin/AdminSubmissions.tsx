@@ -6,6 +6,8 @@ import type { ContactSubmission } from '../../types'
 export default function AdminSubmissions() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([])
   const [loading,     setLoading]     = useState(true)
+  const [syncing,     setSyncing]     = useState(false)
+  const [syncMsg,     setSyncMsg]     = useState<{ text: string; ok: boolean } | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -28,6 +30,19 @@ export default function AdminSubmissions() {
   const handleLogout = () => {
     localStorage.removeItem('admin_token')
     navigate('/admin')
+  }
+
+  const handleSync = async () => {
+    setSyncing(true)
+    setSyncMsg(null)
+    try {
+      const res = await adminApi.syncBlog()
+      setSyncMsg({ text: res.data.message, ok: true })
+    } catch (err: any) {
+      setSyncMsg({ text: err?.message ?? 'Sync failed.', ok: false })
+    } finally {
+      setSyncing(false)
+    }
   }
 
   const unreadCount = submissions.filter(s => !s.isRead).length
@@ -62,14 +77,48 @@ export default function AdminSubmissions() {
               </p>
             )}
           </div>
-          <button
-            onClick={handleLogout}
-            className="font-mono text-xs hover:underline mt-1"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            Sign out
-          </button>
+          <div className="flex flex-col items-end gap-2">
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="font-mono text-xs px-3 py-1.5 rounded-lg transition-all duration-200 disabled:opacity-50"
+              style={{
+                border: '1px solid rgba(139,92,246,0.40)',
+                color: 'var(--accent-violet)',
+                background: 'transparent',
+              }}
+              onMouseEnter={e => {
+                if (!syncing) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(139,92,246,0.08)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+              }}
+            >
+              {syncing ? 'Syncing…' : 'Sync Blog'}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="font-mono text-xs hover:underline"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              Sign out
+            </button>
+          </div>
         </div>
+
+        {/* Sync feedback */}
+        {syncMsg && (
+          <div
+            className="mb-6 px-4 py-3 rounded-xl font-mono text-xs"
+            style={{
+              background: syncMsg.ok ? 'rgba(0,212,255,0.06)' : 'rgba(255,80,80,0.06)',
+              border: `1px solid ${syncMsg.ok ? 'rgba(0,212,255,0.25)' : 'rgba(255,80,80,0.25)'}`,
+              color: syncMsg.ok ? 'var(--accent-cyan)' : '#ff6b6b',
+            }}
+          >
+            {syncMsg.text}
+          </div>
+        )}
 
         {/* Loading */}
         {loading && (

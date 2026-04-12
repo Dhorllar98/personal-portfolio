@@ -6,10 +6,13 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Attach JWT for admin routes
+// Attach JWT for admin routes and blog sync
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('admin_token')
-  if (token && config.url?.startsWith('/api/admin')) {
+  const isProtected =
+    config.url?.startsWith('/api/admin') ||
+    config.url?.startsWith('/api/blog/sync')
+  if (token && isProtected) {
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
@@ -48,6 +51,9 @@ export const adminApi = {
 
   markRead: (id: string) =>
     api.patch(`/api/admin/submissions/${id}/read`),
+
+  syncBlog: () =>
+    api.post<{ message: string; synced: number; skipped: string[] }>('/api/blog/sync'),
 }
 
 export default api
