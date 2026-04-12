@@ -15,9 +15,12 @@ public static class DependencyInjection
     {
         // ── Database (Supabase / PostgreSQL via EF Core) ──────────────────────
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(
-                configuration.GetConnectionString("DefaultConnection"),
-                npgsql => npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+            options
+                .UseNpgsql(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    npgsql => npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
+                .ConfigureWarnings(w =>
+                    w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
         // ── Repositories ──────────────────────────────────────────────────────
         services.AddScoped<IContactSubmissionRepository, ContactSubmissionRepository>();
