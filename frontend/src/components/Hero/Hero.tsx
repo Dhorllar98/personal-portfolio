@@ -70,11 +70,11 @@ export default function Hero() {
           {/* Sub-statement */}
           <p className="hero-line mt-7 max-w-lg text-base leading-relaxed"
             style={{ color: 'rgba(180,180,200,0.75)' }}>
-            Full-stack developer specialising in{' '}
-            <span style={{ color: '#f0f0f0' }}>ASP.NET Core</span>,{' '}
-            <span style={{ color: '#f0f0f0' }}>React</span>, and{' '}
-            <span style={{ color: '#f0f0f0' }}>clean architecture</span>.
-            I care about software that's easy to change — not just easy to ship.
+            I build production-grade systems with{' '}
+            <span style={{ color: '#f0f0f0' }}>ASP.NET Core 9</span> and the{' '}
+            <span style={{ color: '#f0f0f0' }}>Anthropic API</span> using{' '}
+            <span style={{ color: '#f0f0f0' }}>clean architecture</span>,
+            real deployments, no shortcuts.
           </p>
 
           {/* CTAs */}
