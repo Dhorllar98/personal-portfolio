@@ -1,6 +1,6 @@
 import type { Project } from '../types'
 
-export const projects = [
+export const projects: Project[] = [
   {
     title: "Personal Portfolio",
     description: "My corner of the internet, built deliberately using AI-assisted development with Claude Code. A production-ready full-stack portfolio applying backend engineering principles — clean architecture, JWT authentication, rate-limited APIs, and a markdown blog — with a React frontend and ASP.NET Core 9 backend backed by Supabase.",

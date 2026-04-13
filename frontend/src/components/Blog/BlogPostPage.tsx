@@ -24,7 +24,7 @@ export default function BlogPostPage() {
           setLoading(false)
         }
       })
-      .catch((err: { message?: string }) => {
+      .catch(() => {
         if (!cancelled) {
           setNotFound(true)
           setLoading(false)
