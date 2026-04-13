@@ -1,41 +1,80 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTheme } from '../../hooks/useTheme'
 
 const links = [
-  { label: 'About',    href: '#about' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Blog',     href: '#blog' },
-  { label: 'Contact',  href: '#contact' },
+  { num: '01', label: 'About',    href: '#about' },
+  { num: '02', label: 'Projects', href: '#projects' },
+  { num: '03', label: 'Blog',     href: '#blog' },
+  { num: '04', label: 'Contact',  href: '#contact' },
 ]
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
+  const [open,      setOpen]      = useState(false)
+  const [scrolled,  setScrolled]  = useState(false)
   const { theme, toggle } = useTheme()
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <header className="fixed top-0 inset-x-0 z-50 navbar-blur">
+    <header
+      className="fixed top-0 inset-x-0 z-50 transition-all duration-300"
+      style={{
+        background: scrolled ? 'rgba(10,10,15,0.88)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(16px) saturate(1.5)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(16px) saturate(1.5)' : 'none',
+        borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+      }}
+    >
       <nav className="container-max flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-        <a href="#" className="font-mono font-medium text-sm" style={{ color: 'var(--accent-cyan)' }}>
-          dhorllar98<span style={{ color: 'var(--text-secondary)' }}>.</span>com
+
+        {/* Logo */}
+        <a href="#" className="group flex items-center gap-1.5">
+          <span
+            className="font-mono font-bold text-sm transition-colors"
+            style={{ color: 'var(--accent-cyan)' }}
+          >
+            dhorllar
+          </span>
+          <span
+            className="font-mono font-bold text-sm"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            98
+          </span>
+          <span
+            className="font-mono text-sm"
+            style={{ color: 'var(--accent-violet)' }}
+          >
+            .com
+          </span>
         </a>
 
-        <div className="hidden md:flex items-center gap-8">
-          <ul className="flex items-center gap-8">
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-6">
+          <ul className="flex items-center gap-6">
             {links.map((l) => (
               <li key={l.label}>
                 <a
                   href={l.href}
-                  className="text-sm transition-colors"
+                  className="group flex items-baseline gap-1 text-sm transition-colors"
                   style={{ color: 'var(--text-secondary)' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
                   onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
                 >
+                  <span className="font-mono text-[10px]" style={{ color: 'var(--accent-cyan)' }}>
+                    {l.num}.
+                  </span>
                   {l.label}
                 </a>
               </li>
             ))}
           </ul>
 
+          {/* Theme toggle */}
           <button
             onClick={toggle}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -55,6 +94,26 @@ export default function Navbar() {
               </svg>
             )}
           </button>
+
+          {/* Resume button */}
+          <a
+            href="https://github.com/Dhorllar98"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-xs px-4 py-2 rounded-lg transition-all duration-200"
+            style={{
+              border: '1px solid var(--accent-cyan)',
+              color: 'var(--accent-cyan)',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(0,212,255,0.08)'
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'
+            }}
+          >
+            GitHub
+          </a>
         </div>
 
         {/* Mobile controls */}
@@ -80,7 +139,7 @@ export default function Navbar() {
             className="p-1.5 rounded-md"
             style={{ color: 'var(--text-secondary)' }}
             aria-label="Toggle menu"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen(v => !v)}
           >
             {open ? (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,21 +154,30 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile menu */}
       {open && (
-        <ul className="md:hidden px-6 pb-5 pt-2 space-y-3" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-primary)' }}>
-          {links.map((l) => (
-            <li key={l.label}>
-              <a
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className="block text-sm py-1 transition-colors"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                {l.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div
+          className="md:hidden px-6 pb-6 pt-3"
+          style={{ borderTop: '1px solid var(--border)', background: 'rgba(10,10,15,0.97)' }}
+        >
+          <ul className="space-y-4">
+            {links.map((l) => (
+              <li key={l.label}>
+                <a
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="flex items-baseline gap-2 text-sm py-1"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <span className="font-mono text-[10px]" style={{ color: 'var(--accent-cyan)' }}>
+                    {l.num}.
+                  </span>
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </header>
   )

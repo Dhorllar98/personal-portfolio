@@ -177,32 +177,102 @@
   }
 }
 
-/* ── Hero animated gradient ─────────────────────────────────────────────── */
-.hero-gradient {
-  position: relative;
-  isolation: isolate;
+/* ── Hero blobs ─────────────────────────────────────────────────────────── */
+.hero-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
 }
-.hero-gradient::before {
-  content: '';
+.hero-blob-cyan {
+  width: 520px;
+  height: 520px;
+  top: -80px;
+  left: -120px;
+  background: radial-gradient(circle, rgba(0,212,255,0.10) 0%, transparent 70%);
+  animation: blobDrift 14s ease-in-out infinite alternate;
+}
+.hero-blob-violet {
+  width: 600px;
+  height: 600px;
+  bottom: -100px;
+  right: -160px;
+  background: radial-gradient(circle, rgba(121,40,202,0.13) 0%, transparent 70%);
+  animation: blobDrift 18s ease-in-out infinite alternate-reverse;
+}
+.hero-noise {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(ellipse 60% 50% at 15% 40%, rgba(0,212,255,0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 60% at 85% 60%, rgba(121,40,202,0.09) 0%, transparent 70%);
+  z-index: 0;
+  opacity: 0.025;
   pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px;
 }
-.hero-gradient::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(120deg,
-    rgba(0,212,255,0.04) 0%,
-    transparent 40%,
-    rgba(121,40,202,0.06) 100%
-  );
-  background-size: 200% 200%;
-  animation: gradientShift 10s ease infinite;
-  pointer-events: none;
+
+/* ── Typewriter cursor ───────────────────────────────────────────────────── */
+.typewriter-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+  color: var(--accent-cyan);
+  font-weight: 300;
+}
+
+/* ── Skill chip ──────────────────────────────────────────────────────────── */
+.skill-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.4rem;
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  white-space: nowrap;
+}
+.skill-chip:hover {
+  border-color: rgba(0,212,255,0.30);
+  color: var(--text-primary);
+  background: rgba(0,212,255,0.05);
+}
+
+/* ── Scroll mouse indicator ──────────────────────────────────────────────── */
+.scroll-mouse {
+  width: 22px;
+  height: 34px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 11px;
+  display: flex;
+  justify-content: center;
+  padding-top: 5px;
+}
+.scroll-wheel {
+  width: 3px;
+  height: 6px;
+  background: var(--accent-cyan);
+  border-radius: 2px;
+  animation: scrollWheel 1.8s ease-in-out infinite;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────────── */
+@keyframes blobDrift {
+  from { transform: translate(0px,  0px) scale(1);    }
+  to   { transform: translate(30px, 20px) scale(1.05); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes scrollWheel {
+  0%   { transform: translateY(0);   opacity: 1; }
+  80%  { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0);   opacity: 0; }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
 }
