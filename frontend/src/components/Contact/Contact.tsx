@@ -35,7 +35,7 @@ export default function Contact() {
 
         {/* Section heading */}
         <div ref={headingRef} className="reveal flex items-center gap-4 mb-12">
-          <span className="font-mono text-sm" style={{ color: 'var(--accent-cyan)' }}>04.</span>
+          <span className="font-mono text-sm" style={{ color: 'var(--accent-cyan)' }}>06.</span>
           <h2 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
             Get In Touch
           </h2>

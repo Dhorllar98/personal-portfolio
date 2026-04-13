@@ -58,7 +58,7 @@ export default function Blog() {
 
         {/* Section heading */}
         <div ref={headingRef} className="reveal flex items-center gap-4 mb-12">
-          <span className="font-mono text-sm" style={{ color: 'var(--accent-cyan)' }}>03.</span>
+          <span className="font-mono text-sm" style={{ color: 'var(--accent-cyan)' }}>04.</span>
           <h2 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
             Blog
           </h2>

@@ -2,8 +2,10 @@ import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import Hero from '../components/Hero'
 import About from '../components/About'
+import WhyMe from '../components/WhyMe/WhyMe'
 import Projects from '../components/Projects/Projects'
 import Blog from '../components/Blog/Blog'
+import FAQ from '../components/FAQ/FAQ'
 import Contact from '../components/Contact'
 
 export default function HomePage() {
@@ -11,14 +13,25 @@ export default function HomePage() {
     <>
       <Navbar />
       <main>
+        {/* 1 – Hero: dark primary */}
         <Hero />
-        <div className="section-divider" />
+
+        {/* 2 – About: dark secondary */}
         <About />
-        <div className="section-divider" />
+
+        {/* 3 – Why Me: LIGHT — visual breathing room */}
+        <WhyMe />
+
+        {/* 4 – Projects: dark primary */}
         <Projects />
-        <div className="section-divider" />
+
+        {/* 5 – Blog: dark secondary */}
         <Blog />
-        <div className="section-divider" />
+
+        {/* 6 – FAQ: dark primary */}
+        <FAQ />
+
+        {/* 7 – Contact: dark secondary */}
         <Contact />
       </main>
       <Footer />

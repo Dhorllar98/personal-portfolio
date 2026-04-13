@@ -1,46 +1,16 @@
 import { Helmet } from 'react-helmet-async'
 import { useEffect, useRef } from 'react'
 
-const ROLES = ['Full-Stack Developer', 'Backend Engineer', '.NET & React Specialist']
-
 export default function Hero() {
-  const roleRef   = useRef<HTMLSpanElement>(null)
-  const cursorRef = useRef<HTMLSpanElement>(null)
+  const lineRef = useRef<HTMLDivElement>(null)
 
-  /* Typewriter cycling through roles */
+  /* Staggered reveal on mount */
   useEffect(() => {
-    let roleIdx   = 0
-    let charIdx   = 0
-    let deleting  = false
-    let timer: ReturnType<typeof setTimeout>
-
-    const tick = () => {
-      const current = ROLES[roleIdx]
-      if (!roleRef.current) return
-
-      if (!deleting) {
-        roleRef.current.textContent = current.slice(0, charIdx + 1)
-        charIdx++
-        if (charIdx === current.length) {
-          deleting = true
-          timer = setTimeout(tick, 1800)
-          return
-        }
-      } else {
-        roleRef.current.textContent = current.slice(0, charIdx - 1)
-        charIdx--
-        if (charIdx === 0) {
-          deleting  = false
-          roleIdx   = (roleIdx + 1) % ROLES.length
-          timer = setTimeout(tick, 400)
-          return
-        }
-      }
-      timer = setTimeout(tick, deleting ? 45 : 80)
-    }
-
-    timer = setTimeout(tick, 600)
-    return () => clearTimeout(timer)
+    const els = lineRef.current?.querySelectorAll('.hero-line')
+    if (!els) return
+    els.forEach((el, i) => {
+      setTimeout(() => el.classList.add('hero-line-visible'), 120 + i * 140)
+    })
   }, [])
 
   return (
@@ -48,28 +18,30 @@ export default function Hero() {
       <Helmet>
         <title>Dhorllar98 — Full-Stack Developer</title>
         <meta name="description" content="Full-stack developer building with React, TypeScript, and ASP.NET Core. Open to opportunities." />
-        <meta property="og:title" content="Dhorllar98 — Full-Stack Developer" />
-        <meta property="og:description" content="Full-stack developer building with React, TypeScript, and ASP.NET Core." />
       </Helmet>
 
       <section
         id="hero"
-        className="relative min-h-screen flex items-center section-padding pt-32 overflow-hidden"
+        className="relative min-h-screen flex items-center section-padding pt-28 overflow-hidden"
+        style={{ background: '#080808' }}
         aria-label="Introduction"
       >
         {/* Background blobs */}
-        <div className="hero-blob hero-blob-cyan"  aria-hidden />
-        <div className="hero-blob hero-blob-violet" aria-hidden />
-        <div className="hero-noise" aria-hidden />
+        <div className="hero-blob hero-blob-cyan"   aria-hidden />
+        <div className="hero-blob hero-blob-violet"  aria-hidden />
+        <div className="hero-noise"                  aria-hidden />
 
-        <div className="container-max w-full relative z-10">
+        {/* Top accent line */}
+        <div className="absolute top-0 inset-x-0 h-[2px]"
+          style={{ background: 'linear-gradient(90deg, transparent 0%, var(--accent-cyan) 40%, var(--accent-violet) 70%, transparent 100%)' }}
+          aria-hidden
+        />
+
+        <div ref={lineRef} className="container-max w-full relative z-10">
 
           {/* Status badge */}
-          <div className="inline-flex items-center gap-2 mb-8 px-3 py-1.5 rounded-full"
-            style={{
-              background: 'rgba(0,212,255,0.06)',
-              border: '1px solid rgba(0,212,255,0.20)',
-            }}
+          <div className="hero-line inline-flex items-center gap-2 mb-10 px-3 py-1.5 rounded-full"
+            style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.18)' }}
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
@@ -83,35 +55,30 @@ export default function Hero() {
           </div>
 
           {/* Greeting */}
-          <p className="font-mono text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
-            Hello, I'm
+          <p className="hero-line font-mono text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+            Hello, I'm Dolapo —
           </p>
 
-          {/* Name */}
-          <h1 className="font-display font-bold leading-[1.08] tracking-tight"
-            style={{ fontSize: 'clamp(2.6rem, 7vw, 5.5rem)', color: 'var(--text-primary)' }}>
-            Oluwadamilola
-            <br />
-            <span className="gradient-text">Dolapo.</span>
+          {/* Name — serif display */}
+          <h1 className="hero-line font-serif-display leading-[1.05] tracking-tight"
+            style={{ fontSize: 'clamp(3rem, 8vw, 6.5rem)', color: '#f0f0f0' }}>
+            The engineer who <br />
+            <em style={{ color: 'var(--accent-cyan)', fontStyle: 'italic' }}>thinks</em>{' '}
+            before he builds.
           </h1>
 
-          {/* Typewriter role */}
-          <h2 className="font-display font-bold mt-3 leading-snug"
-            style={{ fontSize: 'clamp(1.4rem, 3.5vw, 2.4rem)', color: 'var(--text-secondary)' }}>
-            <span ref={roleRef} />
-            <span ref={cursorRef} className="typewriter-cursor">|</span>
-          </h2>
-
-          {/* Bio */}
-          <p className="mt-6 max-w-lg text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            I build production-grade software with{' '}
-            <span style={{ color: 'var(--text-primary)' }}>clean architecture</span>,
-            solid APIs, and interfaces that don't get in the way. Currently
-            sharpening my edge with AI-assisted development.
+          {/* Sub-statement */}
+          <p className="hero-line mt-7 max-w-lg text-base leading-relaxed"
+            style={{ color: 'rgba(180,180,200,0.75)' }}>
+            Full-stack developer specialising in{' '}
+            <span style={{ color: '#f0f0f0' }}>ASP.NET Core</span>,{' '}
+            <span style={{ color: '#f0f0f0' }}>React</span>, and{' '}
+            <span style={{ color: '#f0f0f0' }}>clean architecture</span>.
+            I care about software that's easy to change — not just easy to ship.
           </p>
 
-          {/* CTA buttons */}
-          <div className="mt-8 flex flex-wrap gap-4">
+          {/* CTAs */}
+          <div className="hero-line mt-9 flex flex-wrap gap-4">
             <a href="#projects" className="btn-primary">
               View my work
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -121,32 +88,27 @@ export default function Hero() {
             <a href="#contact" className="btn-outline">Get in touch</a>
           </div>
 
-          {/* Stats row */}
-          <div className="mt-14 flex flex-wrap gap-8">
+          {/* Stats */}
+          <div className="hero-line mt-16 flex flex-wrap gap-10 pt-10"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             {[
-              { value: '4+',    label: 'Projects shipped' },
-              { value: '3+',    label: 'Years building' },
-              { value: 'ASP.NET', label: 'Core specialist' },
+              { value: '4+',     label: 'Projects shipped' },
+              { value: '3+',     label: 'Years building' },
+              { value: '.NET',   label: 'Core specialist' },
             ].map(({ value, label }) => (
               <div key={label}>
-                <p className="font-display font-bold text-2xl" style={{ color: 'var(--text-primary)' }}>
-                  {value}
-                </p>
-                <p className="font-mono text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                  {label}
-                </p>
+                <p className="font-serif-display text-2xl" style={{ color: '#f0f0f0' }}>{value}</p>
+                <p className="font-mono text-xs mt-0.5" style={{ color: 'rgba(180,180,200,0.5)' }}>{label}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5"
-          style={{ color: 'var(--text-secondary)' }}>
-          <span className="font-mono text-[10px] uppercase tracking-widest">Scroll</span>
-          <div className="scroll-mouse">
-            <div className="scroll-wheel" />
-          </div>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          style={{ color: 'rgba(180,180,200,0.4)' }}>
+          <span className="font-mono text-[9px] uppercase tracking-widest">Scroll</span>
+          <div className="scroll-mouse"><div className="scroll-wheel" /></div>
         </div>
       </section>
     </>

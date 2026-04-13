@@ -15,7 +15,7 @@ export default function Projects() {
 
         {/* Section label */}
         <div ref={headingRef} className="reveal flex items-center gap-4 mb-12">
-          <span className="font-mono text-sm" style={{ color: 'var(--accent-cyan)' }}>02.</span>
+          <span className="font-mono text-sm" style={{ color: 'var(--accent-cyan)' }}>03.</span>
           <h2 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
             Projects
           </h2>
