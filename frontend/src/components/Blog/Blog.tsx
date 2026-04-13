@@ -57,17 +57,13 @@ export default function Blog() {
       <div className="container-max">
 
         {/* Section heading */}
-        <h2
-          ref={headingRef}
-          className="reveal font-display text-2xl font-bold mb-2"
-          style={{ color: 'var(--text-primary)' }}
-        >
-          <span className="font-mono text-base mr-2" style={{ color: 'var(--accent-cyan)' }}>03.</span>
-          Blog
-        </h2>
-        <p className="mb-8 text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Things I&apos;ve written about software, architecture, and lessons learned building with AI.
-        </p>
+        <div ref={headingRef} className="reveal flex items-center gap-4 mb-12">
+          <span className="font-mono text-sm" style={{ color: 'var(--accent-cyan)' }}>03.</span>
+          <h2 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Blog
+          </h2>
+          <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+        </div>
 
         {/* Tab bar */}
         <div className="flex gap-1 mb-8 p-1 rounded-lg w-fit" style={{ background: 'var(--bg-primary)' }}>
