@@ -1,16 +1,24 @@
+import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import BlogPostPage from './components/Blog/BlogPostPage'
 import AdminLogin from './components/Admin/AdminLogin'
 import AdminSubmissions from './components/Admin/AdminSubmissions'
+import TipsLoader, { shouldShowTip } from './components/TipsLoader/TipsLoader'
 
 export default function App() {
+  // Show the tip loader once per browser session on the homepage only
+  const [showTip, setShowTip] = useState(() => shouldShowTip())
+
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/blog/:slug" element={<BlogPostPage />} />
-      <Route path="/admin" element={<AdminLogin />} />
-      <Route path="/admin/submissions" element={<AdminSubmissions />} />
-    </Routes>
+    <>
+      {showTip && <TipsLoader onDone={() => setShowTip(false)} />}
+      <Routes>
+        <Route path="/"                     element={<HomePage />} />
+        <Route path="/blog/:slug"           element={<BlogPostPage />} />
+        <Route path="/admin"                element={<AdminLogin />} />
+        <Route path="/admin/submissions"    element={<AdminSubmissions />} />
+      </Routes>
+    </>
   )
 }
