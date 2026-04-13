@@ -42,22 +42,29 @@ export default function About() {
           {/* Left — bio */}
           <div ref={leftRef} className="reveal lg:col-span-3 space-y-5">
             <p className="text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              I'm a full-stack developer with a bias toward the backend — the kind who reads
-              the architecture decision records before touching the code. My tools of choice are{' '}
-              <span style={{ color: 'var(--text-primary)' }}>React + TypeScript</span> on the
-              frontend and{' '}
-              <span style={{ color: 'var(--text-primary)' }}>ASP.NET Core + C#</span> on
-              the backend, structured with clean architecture so the codebase stays honest as it grows.
+              I'm a Computer Science graduate and backend developer focused on building
+              production-grade systems that are maintainable, well-structured, and deployed
+              for real use. My primary stack is{' '}
+              <span style={{ color: 'var(--text-primary)' }}>ASP.NET Core 9 and C#</span>,
+              applied with clean architecture{' '}
+              <span style={{ color: 'var(--text-primary)' }}>
+                {'{ Domain, Application, Infrastructure, and API layers }'}
+              </span>,
+              together with{' '}
+              <span style={{ color: 'var(--text-primary)' }}>JWT authentication</span> and{' '}
+              <span style={{ color: 'var(--text-primary)' }}>Entity Framework Core</span>.
             </p>
             <p className="text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              I care about the gap between "it works" and "it's maintainable" — reducing
-              coupling, naming things properly, writing handlers you can test without spinning up
-              a server. That attention to structure shows up in every project I ship.
+              I'm currently expanding into Generative AI engineering, building real-world
+              applications with the{' '}
+              <span style={{ color: 'var(--text-primary)' }}>Anthropic API</span> and{' '}
+              <span style={{ color: 'var(--text-primary)' }}>Claude Code</span> as part of
+              a structured AI-assisted development program.
             </p>
             <p className="text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              Right now I'm deepening my work with AI-assisted development through a structured
-              program — not just prompting faster, but understanding how to direct AI with
-              intention and integrate it into real production workflows.
+              I care about the discipline of clean architecture as much as I care about
+              the product it produces. I believe that how you structure a system is a
+              decision with long-term consequences, and I take that seriously from day one.
             </p>
 
             {/* Quick facts */}
