@@ -1,9 +1,16 @@
 import axios from 'axios'
 import type { ContactFormData, ApiError } from '../types'
 
+// Standard timeout for most requests
+const DEFAULT_TIMEOUT = 15_000
+
+// Extended timeout for the blog — Render free tier can take up to 60s on cold start
+const BLOG_TIMEOUT = 65_000
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000',
   headers: { 'Content-Type': 'application/json' },
+  timeout: DEFAULT_TIMEOUT,
 })
 
 // Attach JWT for admin routes and blog sync
@@ -15,17 +22,23 @@ api.interceptors.request.use((config) => {
   if (token && isProtected) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  // Give blog endpoints the extended cold-start timeout
+  if (config.url?.startsWith('/api/blog')) {
+    config.timeout = BLOG_TIMEOUT
+  }
+
   return config
 })
 
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    const data = error.response?.data
+    const data   = error.response?.data
     const status = error.response?.status
 
-    // ASP.NET Core ValidationProblemDetails returns errors as { errors: { Field: ["msg"] } }
-    // ProblemDetails returns { title, detail }
+    // ASP.NET Core ValidationProblemDetails → { errors: { Field: ["msg"] } }
+    // ProblemDetails                         → { title, detail }
     const apiError: ApiError = {
       message:
         status === 429
