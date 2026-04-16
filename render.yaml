@@ -45,7 +45,9 @@ services:
       - key: Cors__AllowedOrigins__1
         value: https://dhorllar98.com
       - key: Cors__AllowedOrigins__2
-        value: https://dhorllar98.vercel.app   # keep during transition; remove after go-live
+        value: https://dhorllar98.vercel.app
+      - key: Cors__AllowedOrigins__3
+        value: https://portfolio-frontend-steel-three.vercel.app
 
       # ── GitHub (blog sync) ────────────────────────────────────────────────
       - key: GitHub__Token
