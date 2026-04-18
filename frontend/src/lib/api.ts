@@ -8,7 +8,6 @@ const DEFAULT_TIMEOUT = 15_000
 const BLOG_TIMEOUT = 65_000
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000',
   headers: { 'Content-Type': 'application/json' },
   timeout: DEFAULT_TIMEOUT,
 })
