@@ -7,6 +7,10 @@ const DEFAULT_TIMEOUT = 15_000
 // Extended timeout for the blog — Render free tier can take up to 60s on cold start
 const BLOG_TIMEOUT = 65_000
 
+// No baseURL — all paths are relative to the current origin.
+// Dev:  Vite proxy in vite.config.ts forwards /api/* → localhost:5000
+// Prod: Vercel rewrite in vercel.json forwards /api/* → Render backend
+// This eliminates cross-origin requests entirely — no CORS config needed.
 const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
   timeout: DEFAULT_TIMEOUT,
