@@ -19,6 +19,7 @@ const COLD_START_THRESHOLD = 6_000
 
 export default function Blog() {
   const headingRef = useScrollReveal()
+  const listRef    = useScrollReveal()
 
   const [posts,      setPosts]      = useState<BlogPost[]>([])
   const [loading,    setLoading]    = useState(true)
@@ -129,13 +130,9 @@ export default function Blog() {
         ) : visible.length === 0 ? (
           <EmptyState tab={activeTab} />
         ) : (
-          <ul className="space-y-4">
-            {visible.map((post, i) => (
-              <li
-                key={post.slug}
-                className="reveal"
-                style={{ animationDelay: `${i * 60}ms` }}
-              >
+          <ul ref={listRef} className="reveal-children space-y-4">
+            {visible.map(post => (
+              <li key={post.slug}>
                 <BlogCard post={post} />
               </li>
             ))}
