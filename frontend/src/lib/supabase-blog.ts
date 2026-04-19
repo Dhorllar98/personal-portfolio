@@ -13,7 +13,12 @@
 import type { BlogPost, BlogPostDetail } from '../types'
 
 const SUPABASE_URL = 'https://qwaisknldjzfjiswjgcn.supabase.co'
+
+// Prefer an env var so the key is not in the public repo.
+// Add VITE_SUPABASE_ANON_KEY to your Vercel environment variables.
+// The fallback keeps the blog working if the env var is not yet set.
 const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ??
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
   'eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3YWlza25sZGp6Zmppc3dqZ2NuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMzg3MzMsImV4cCI6MjA5MDcxNDczM30.' +
   'NBzYRTXlaqoDXi6eVhqHhcGqMR2uXT5859lMT-ybfdA'
