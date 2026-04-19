@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
+import NotFoundPage from './pages/NotFoundPage'
 import BlogPostPage from './components/Blog/BlogPostPage'
 import AdminLogin from './components/Admin/AdminLogin'
 import AdminSubmissions from './components/Admin/AdminSubmissions'
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/blog/:slug"           element={<BlogPostPage />} />
         <Route path="/admin"                element={<AdminLogin />} />
         <Route path="/admin/submissions"    element={<AdminSubmissions />} />
+        <Route path="*"                     element={<NotFoundPage />} />
       </Routes>
     </>
   )
