@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import type { BlogPost, BlogTab } from '../../types'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
@@ -16,7 +16,9 @@ const TABS: { key: BlogTab; label: string }[] = [
 
 export default function Blog() {
   const headingRef = useScrollReveal()
-  const listRef    = useScrollReveal<HTMLUListElement>()
+  // Plain ref — we manually add .visible once data arrives so the
+  // IntersectionObserver timing doesn't matter for async-loaded content.
+  const listRef = useRef<HTMLUListElement>(null)
 
   const [posts,     setPosts]     = useState<BlogPost[]>([])
   const [loading,   setLoading]   = useState(true)
@@ -42,6 +44,17 @@ export default function Blog() {
 
     return () => { cancelled = true }
   }, [])
+
+  // Trigger the reveal animation once the list is in the DOM after data loads.
+  useEffect(() => {
+    if (!loading && listRef.current) {
+      // Small delay so the browser has painted the skeleton-to-list transition
+      const id = requestAnimationFrame(() =>
+        listRef.current?.classList.add('visible')
+      )
+      return () => cancelAnimationFrame(id)
+    }
+  }, [loading])
 
   const visible = posts.filter(p =>
     activeTab === 'all' ? true : p.status === activeTab
