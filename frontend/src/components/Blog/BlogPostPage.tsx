@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Helmet } from 'react-helmet-async'
 import type { BlogPostDetail } from '../../types'
-import api from '../../lib/api'
+import { fetchBlogPost } from '../../lib/supabase-blog'
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -17,10 +17,11 @@ export default function BlogPostPage() {
     if (!slug) return
     let cancelled = false
 
-    api.get<BlogPostDetail>(`/api/blog/${slug}`)
-      .then(res => {
+    fetchBlogPost(slug)
+      .then(data => {
         if (!cancelled) {
-          setPost(res.data)
+          if (data) setPost(data)
+          else setNotFound(true)
           setLoading(false)
         }
       })

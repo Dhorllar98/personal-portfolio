@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import type { BlogPost, BlogTab } from '../../types'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
-import api from '../../lib/api'
+import { fetchBlogPosts } from '../../lib/supabase-blog'
 
 // ── Tab configuration ─────────────────────────────────────────────────────────
 // The public API only returns published posts, so the Drafts tab is omitted.
@@ -14,47 +14,33 @@ const TABS: { key: BlogTab; label: string }[] = [
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-// After this many ms still loading, show the cold-start warning
-const COLD_START_THRESHOLD = 6_000
-
 export default function Blog() {
   const headingRef = useScrollReveal()
-  const listRef    = useScrollReveal()
+  const listRef    = useScrollReveal<HTMLUListElement>()
 
-  const [posts,      setPosts]      = useState<BlogPost[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [slowLoad,   setSlowLoad]   = useState(false)
-  const [error,      setError]      = useState<string | null>(null)
-  const [activeTab,  setActiveTab]  = useState<BlogTab>('all')
+  const [posts,     setPosts]     = useState<BlogPost[]>([])
+  const [loading,   setLoading]   = useState(true)
+  const [error,     setError]     = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<BlogTab>('all')
 
   useEffect(() => {
     let cancelled = false
 
-    // If loading takes longer than threshold, surface a cold-start message
-    const slowTimer = setTimeout(() => {
-      if (!cancelled) setSlowLoad(true)
-    }, COLD_START_THRESHOLD)
-
-    api.get<BlogPost[]>('/api/blog')
-      .then(res => {
+    fetchBlogPosts()
+      .then(data => {
         if (!cancelled) {
-          setPosts(res.data)
+          setPosts(data)
           setLoading(false)
-          setSlowLoad(false)
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setError('Could not reach the server. Please try refreshing in a moment.')
+          setError('Could not load posts. Please try refreshing.')
           setLoading(false)
         }
       })
-      .finally(() => clearTimeout(slowTimer))
 
-    return () => {
-      cancelled = true
-      clearTimeout(slowTimer)
-    }
+    return () => { cancelled = true }
   }, [])
 
   const visible = posts.filter(p =>
@@ -117,14 +103,7 @@ export default function Blog() {
 
         {/* Post list */}
         {loading ? (
-          <>
-            <BlogSkeleton />
-            {slowLoad && (
-              <p className="mt-4 font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
-                Server is waking up — this takes up to 60s on first load...
-              </p>
-            )}
-          </>
+          <BlogSkeleton />
         ) : error ? (
           <p className="italic text-sm" style={{ color: 'var(--text-secondary)' }}>{error}</p>
         ) : visible.length === 0 ? (
