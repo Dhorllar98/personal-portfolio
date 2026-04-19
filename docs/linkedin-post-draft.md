@@ -31,6 +31,8 @@ Claude Code and Cowork are both Claude. The difference is friction and retained 
 
 The site is live. The architecture is clean.
 
-https://portfolio-frontend-steel-three.vercel.app/
+The full breakdown — including the three-layer debugging problem that kept the blog section invisible for two days after everything else was working — is on the site itself.
+
+https://portfolio-frontend-steel-three.vercel.app/blog/building-my-portfolio-with-claude-honest-version
 
 #AIAssistedDevelopment #ClaudeCode #Cowork #DotNet #ASPNETCore #React #TypeScript #CleanArchitecture #Supabase #FullStackDevelopment
